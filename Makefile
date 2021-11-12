@@ -99,6 +99,7 @@ GINKGO := $(TOOLS_BIN_DIR)/$(GINKGO_BIN)-$(GINKGO_VER)
 KUBECTL_VER := v1.22.2
 KUBECTL_BIN := $(TOOLS_BIN_DIR)/kubectl
 KUBECTL := $(KUBECTL_BIN)-$(KUBECTL_VER)
+KUBECTL_SERVERSIDE_APPLY ?= false
 
 KUBE_APISERVER=$(TOOLS_BIN_DIR)/kube-apiserver
 ETCD=$(TOOLS_BIN_DIR)/etcd
@@ -543,7 +544,7 @@ create-management-cluster: $(KUSTOMIZE) $(ENVSUBST)
 .PHONY: create-workload-cluster
 create-workload-cluster: $(ENVSUBST)
 	# Create workload Cluster.
-	$(ENVSUBST) < $(TEMPLATES_DIR)/$(CLUSTER_TEMPLATE) | kubectl apply -f -
+	$(ENVSUBST) < $(TEMPLATES_DIR)/$(CLUSTER_TEMPLATE) | kubectl apply --server-side=$(KUBECTL_SERVERSIDE_APPLY) -f -
 
 	# Wait for the kubeconfig to become available.
 	timeout --foreground 300 bash -c "while ! kubectl get secrets | grep $(CLUSTER_NAME)-kubeconfig; do sleep 1; done"
